@@ -1,8 +1,0 @@
-requests
-python-dotenv
-gpxpy
-shapely
-geopandas
-osmnx
-pandas
-folium
