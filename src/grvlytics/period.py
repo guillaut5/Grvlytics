@@ -54,7 +54,7 @@ def sync_period(token: str, months: float = 6, min_km: float = 0, log: Callable[
     ride_data = []
     for i, ride in enumerate(rides, 1):
         cached = (DATA_DIR / "cache" / f"{ride['id']}_streams.json").exists()
-        log(f"  [{i}/{len(rides)}] {ride['start_date_local'][:10]} {ride['name']!r} "
+        log(f"  [{i}/{len(rides)}] {ride['id']} {ride['start_date_local'][:10]} {ride['name']!r} "
             f"{'(cache)' if cached else '(appel API...)'}")
         streams, detail = fetch_ride_data(token, ride)
         if not streams.get("latlng", {}).get("data"):
