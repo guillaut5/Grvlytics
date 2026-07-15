@@ -36,6 +36,23 @@ def _save_osm_cache_index(index: list[dict]) -> None:
     OSM_CACHE_DIR.mkdir(parents=True, exist_ok=True)
     OSM_CACHE_INDEX.write_text(json.dumps(index), encoding="utf-8")
 
+
+def osm_cache_status() -> list[dict]:
+    """One entry per cached region: file path and covered area in km²."""
+    status = []
+    for entry in _load_osm_cache_index():
+        poly = shapely_wkt.loads(entry["polygon_wkt"])
+        gdf = gpd.GeoSeries([poly], crs="EPSG:4326")
+        area_km2 = gdf.to_crs(gdf.estimate_utm_crs()).area.iloc[0] / 1e6
+        status.append({"path": entry["path"], "area_km2": round(area_km2, 1)})
+    return status
+
+
+def clear_osm_cache() -> None:
+    import shutil
+    if OSM_CACHE_DIR.exists():
+        shutil.rmtree(OSM_CACHE_DIR)
+
 # highway classes that are ambiguous between "route" (paved) and "chemin"
 # (unpaved) without looking at `surface` - common on rural French unclassified/
 # residential/service ways that are actually dirt/gravel farm roads.
@@ -90,14 +107,15 @@ def _track_corridor(lats: list[float], lngs: list[float], buffer_m: float = TRAC
     return gpd.GeoSeries([corridor_utm], crs=utm_crs).to_crs("EPSG:4326").iloc[0]
 
 
-def download_graph_for_track(lats: list[float], lngs: list[float]) -> "ox.MultiDiGraph":
+def download_graph_for_track(lats: list[float], lngs: list[float], use_cache: bool = True) -> "ox.MultiDiGraph":
     """Downloads only the OSM network within TRACK_BUFFER_M of the GPS line.
 
     Much smaller than the route's bounding box on loop/winding rides, where the
-    bbox can cover a lot of area the ride never goes near.
+    bbox can cover a lot of area the ride never goes near. Thin wrapper around
+    download_graph_for_tracks so single-ride lookups also hit the persistent
+    regional cache.
     """
-    corridor = _track_corridor(lats, lngs)
-    return ox.graph_from_polygon(corridor, network_type="all", retain_all=True)
+    return download_graph_for_tracks([(lats, lngs)], use_cache=use_cache)
 
 
 def download_graph_for_tracks(

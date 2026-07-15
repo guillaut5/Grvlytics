@@ -1,0 +1,25 @@
+[project]
+name = "grvlytics"
+version = "0.1.0"
+description = "Analyse de sorties cyclistes Strava par type de terrain"
+requires-python = ">=3.9"
+dependencies = [
+    "requests",
+    "python-dotenv",
+    "gpxpy",
+    "shapely",
+    "geopandas",
+    "osmnx",
+    "pandas",
+    "folium",
+]
+
+[project.scripts]
+grvl = "grvlytics.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
