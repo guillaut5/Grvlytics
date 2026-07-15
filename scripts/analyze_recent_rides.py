@@ -6,7 +6,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 import pandas as pd
 
-from grvlytics.strava import get_access_token, get_latlng_distance_stream, list_recent_rides
+from grvlytics.strava import get_access_token, get_streams, list_recent_rides
 from grvlytics.terrain import terrain_breakdown
 
 MAX_DISTANCE_KM = 50
@@ -21,7 +21,7 @@ def main():
 
     rows = []
     for ride in rides:
-        streams = get_latlng_distance_stream(token, ride["id"])
+        streams = get_streams(token, ride["id"])
         if "latlng" not in streams or "distance" not in streams:
             print(f"  skip {ride['name']!r}: pas de stream GPS")
             continue

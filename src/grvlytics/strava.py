@@ -68,12 +68,27 @@ def find_activity(access_token: str, name_contains: str, on_date: str | None = N
     raise ValueError(f"aucune activité ne contient {name_contains!r}" + (f" le {on_date}" if on_date else ""))
 
 
-def get_latlng_distance_stream(access_token: str, activity_id: int) -> dict:
+def get_activity_detail(access_token: str, activity_id: int, include_all_efforts: bool = True) -> dict:
+    """Detailed activity, including segment_efforts for every segment the ride crossed."""
+    headers = {"Authorization": f"Bearer {access_token}"}
+    resp = requests.get(
+        f"{API_BASE}/activities/{activity_id}",
+        headers=headers,
+        params={"include_all_efforts": str(include_all_efforts).lower()},
+    )
+    resp.raise_for_status()
+    return resp.json()
+
+
+EFFORT_STREAM_KEYS = "latlng,distance,altitude,grade_smooth,velocity_smooth,heartrate"
+
+
+def get_streams(access_token: str, activity_id: int, keys: str = EFFORT_STREAM_KEYS) -> dict:
     headers = {"Authorization": f"Bearer {access_token}"}
     resp = requests.get(
         f"{API_BASE}/activities/{activity_id}/streams",
         headers=headers,
-        params={"keys": "latlng,distance", "key_by_type": "true"},
+        params={"keys": keys, "key_by_type": "true"},
     )
     resp.raise_for_status()
     return resp.json()
