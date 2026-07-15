@@ -35,7 +35,7 @@ def main():
         return
 
     print("\ntoutes les sorties (par date) :")
-    print(ride_df[["date", "name", "distance_km", "perf_index", "terrain_dominant"]].to_string(index=False))
+    print(ride_df[["date", "name", "distance_km", "elevation_gain_m", "perf_index", "terrain_dominant"]].to_string(index=False))
 
     ranked = ride_df.dropna(subset=["perf_index"]).sort_values("perf_index", ascending=False)
     print("\ntop 10 sorties par indice de perf :")

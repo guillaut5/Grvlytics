@@ -63,7 +63,7 @@ def cmd_list(args):
     if args.top:
         ride_df = ride_df.head(args.top)
 
-    cols = [c for c in ["strava_id", "date", "name", "distance_km", "perf_index", "terrain_dominant"] if c in ride_df.columns]
+    cols = [c for c in ["strava_id", "date", "name", "distance_km", "elevation_gain_m", "perf_index", "terrain_dominant"] if c in ride_df.columns]
     print(ride_df[cols].to_string(index=False))
 
 

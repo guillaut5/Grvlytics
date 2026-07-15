@@ -127,12 +127,14 @@ def sync_period(token: str, months: float = 6, min_km: float = 0, log: Callable[
                 weight_total += s["dist_m"]
         ride_index = weighted_sum / weight_total if weight_total else None
         dominant_terrain = max(ride_stats.items(), key=lambda kv: kv[1]["dist_m"])[0] if ride_stats else None
+        total_elev_gain = sum(s["elev_gain_m"] for s in ride_stats.values())
 
         ride_rows.append({
             "strava_id": ride["id"],
             "date": ride["start_date_local"][:10],
             "name": ride["name"],
             "distance_km": round(ride["distance"] / 1000, 1),
+            "elevation_gain_m": round(total_elev_gain),
             "perf_index": round(ride_index, 3) if ride_index is not None else None,
             "terrain_dominant": dominant_terrain,
             "strava_url": f"https://www.strava.com/activities/{ride['id']}",
