@@ -2,6 +2,7 @@
 import sys
 from pathlib import Path
 
+sys.stdout.reconfigure(encoding="utf-8")
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 import pandas as pd
