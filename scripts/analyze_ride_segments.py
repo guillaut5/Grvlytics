@@ -14,47 +14,11 @@ from pathlib import Path
 sys.stdout.reconfigure(encoding="utf-8")
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
+from grvlytics.perf import perf_index
 from grvlytics.strava import find_activity, get_access_token, get_activity_detail, get_streams
-from grvlytics.terrain import classify_points
+from grvlytics.terrain import classify_points, elevation_gain_loss
 
 PAUSE_THRESHOLD_S = 10  # elapsed_time - moving_time above this => flagged as paused
-
-# speed% gained per 1% of grade when flattening a segment to a "flat-equivalent"
-# speed - climbs get inflated, descents get deflated. ~8%/1% is a common cycling
-# rule of thumb; not calibrated on real data yet, revisit once we have history.
-GRADE_ADJUST_K = 8.0
-
-# rolling-resistance/handling penalty by terrain: how much speed the same effort
-# loses on rougher ground, relative to route. First-pass estimate from a single
-# ride (bedarieux: ~20% slower on chemin than route at matching heart rate) -
-# needs more rides to calibrate properly.
-TERRAIN_ADJUST = {
-    "route": 1.00,
-    "piste_cyclable": 1.00,
-    "chemin": 1.20,
-    "sentier": 1.35,
-    "autre": 1.00,
-    "hors_reseau": 1.00,
-}
-
-
-def perf_index(speed_kmh, grade_pct, avg_hr, terrain):
-    """Grade- and terrain-adjusted speed per heartbeat - higher means more efficient for the effort."""
-    if not avg_hr:
-        return None
-    adjusted_speed = speed_kmh * (1 + GRADE_ADJUST_K * grade_pct / 100) * TERRAIN_ADJUST.get(terrain, 1.0)
-    return adjusted_speed / avg_hr
-
-
-def elevation_gain_loss(altitudes_m, start_index, end_index):
-    gain = loss = 0.0
-    for i in range(start_index, min(end_index, len(altitudes_m) - 1)):
-        d = altitudes_m[i + 1] - altitudes_m[i]
-        if d > 0:
-            gain += d
-        else:
-            loss += -d
-    return gain, loss
 
 
 def main():
